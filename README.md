@@ -1,7 +1,7 @@
 # PHPTALServiceProvider, a part of Silex Framework Providers
 
-[Silex] is a lightweight PHP microframework, based on [Symfony2] components.
-[PHPTAL] is a PHP template engines which implementations the excellent Zope Page Template (ZPT) system for PHP.
+[Silex] is a lightweight PHP microframework, based on [Symfony2] [components].
+[PHPTAL] is a PHP template engine which implements the excellent Zope Page Template (ZPT) system for PHP.
 
 This extension allows you to use PHPTAL as a template engine in Silex.
 
@@ -57,8 +57,10 @@ A full example would look like this:
     use Silex\Provider\PHPTALServiceProvider;
 
     $app = new Application();
-    $app['phptal.class_path'] = __DIR__ . '/vendor/phptal/phptal';
-    $app->register(new PHPTALServiceProvider());
+    $app->register(new PHPTALServiceProvider(), array(
+                'phptal.class_path' => __DIR__ . '/vendor/phptal/phptal';
+        )
+    );
 
     $app->get('/hello/{name}', function($name) use ($app) {
         // Set a view file, should be located in the /views directory
@@ -107,8 +109,10 @@ A full example would look like this:
 
 PHPTALExtension is licensed under the [MIT license].
 
+[components]: http://symfony.com/components
+[MIT license]: LICENSE
 [PHPTAL]: http://phptal.org/manual/en/split/introduction.html
 [Silex]: http://silex.sensiolabs.org/
 [Symfony2]: http://symfony.com
 [using Composer]: https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies
-[MIT license]: LICENSE
+ 
