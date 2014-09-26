@@ -1,95 +1,74 @@
 # PHPTALServiceProvider, a part of Silex Framework Providers
 
-[PHPTAL][1] is one of PHP template engines, which is an implementation of the excellent Zope Page Template (ZPT) system for PHP.
-And [Silex][2] is a PHP microframework, which is very light and is based on [Symfony2][3].
-This extension allow you to use PHPTAL as a template engine in Silex.
+[Silex] is a lightweight PHP microframework, based on [Symfony2] components.
+[PHPTAL] is a PHP template engines which implementations the excellent Zope Page Template (ZPT) system for PHP.
 
-## Instllation
+This extension allows you to use PHPTAL as a template engine in Silex.
 
-the best way to install this service provider is to use composer. as the first, creating `composer.json` file in your project below:
+## Installation
+
+The best way to install this service provider is [using Composer].
+Just require Silex, PHPTAL and the PHPTALServiceProvider from your `composer.json` file:
 
         {
             "require": {
                 "brtriver/PHPTALServiceProvider": "dev-master"
+                "phptal/phptal": "~1.3"
+                "silex/silex": "~1.1",
             }
         }
 
-If you also want to install PHPTAL, just added like below:
 
-        {
-            "repositories": [
-                {
-                    "type": "package",
-                    "package": {
-                        "name": "pornel/PHPTAL",
-                        "version": "1.2.2",
-                        "dist": {
-                            "url": "http://phptal.org/files/PHPTAL-1.2.2.zip",
-                            "type": "zip"
-                        },
-                        "source": {
-                            "url": "https://github.com/pornel/PHPTAL.git",
-                            "type": "git",
-                            "reference": "Release 1.2.2"
-                        }
-                    }
-                }
-            ],
-            "require": {
-                "brtriver/PHPTALServiceProvider": "dev-master",
-                "pornel/PHPTAL": "1.2.2"
-            }
-        }
-
-then install composer.php and install
-
-    $ wget http://getcomposer.org/composer.phar
-    $ php composer.phar install
-
-download PHPTALServiceProvider and set to this directory and finally the path of this is below:
-./vendor/brtriver/PHPTALServiceProvider/PHPTALServiceProvider.php
-
-Then PHPTAL library is set to ./vendor/phptal directory and PHPTAL templates is set under views directory.
+When composer update (or install) is run, the PHPTALServiceProvider, the PHPTAL library an the Silex framework will be downloaded to the `vendor/` directory. PHPTAL templates should be put in the  `views/` directory.
 
     /project_directory
-    │  ├── .htaccess
-    │  ├── silex.phar
-    │  ├── composer.json
-    │  ├── composer.phar
-    │  └── index.php
-    ├── vendor
-    │   ├── bin
-    │   ├── brtriver
-    │   │   └── PHPTALServiceProvider
-    │   │       └─ PHPTALServiceProvider.php
-    │   └── pornel
-    │       └── PHPTAL
-    └── views
-        └── teset.html (PHPTAL template files is set here)
+        │  ├── composer.json
+        │  └── composer.lock
+        ├── vendor
+        │   ├── bin
+        │   ├── brtriver
+        │   │   └── PHPTALServiceProvider
+        │   │       └─ PHPTALServiceProvider.php
+        │   └── phptal
+        │   │   └── phptal
+        │   └── silex
+        │   │   └── silex
+        │   └── autoload.php
+        ├── views
+        │   └── test.html (PHPTAL template files should be placed here)
+        └── web
+            ├── .htaccess
+            └── index.php
 
 ## Sample Code
 
-in index.php, you require this PHPTALServiceProvider file and register it, then your code is like below:
+Registering the PHPTALServiceProvider to the Silex Application will make PHPTAL available from `$app['phptal']`. 
+After setting a template path, this can be used like you would use PHPTAL itself.
+
+A full example would look like this:
 
 ### index.php
-After calling register method, $app['phptal'] is a instance of PHPTAL. You can use it as PHPTAL itself.
-You have to set a template path first.
 
     <?php
-    require_once __DIR__.'/silex.phar';
-    require_once __DIR__.'/vendor/brtriver/PHPTALServiceProvider/PHPTALServiceProvider.php';
 
+    require_once 'vendor/autoloader.php';
+
+    use Silex\Application;
     use Silex\Provider\PHPTALServiceProvider;
 
-    $app = new Silex\Application();
-    $app['phptal.class_path'] = __DIR__.'/vendor/pornel/PHPTAL';
+    $app = new Application();
+    $app['phptal.class_path'] = __DIR__ . '/vendor/phptal/phptal';
     $app->register(new PHPTALServiceProvider());
 
-    $app->get('/hello/{name}', function($name) use($app) {
-        // set your view file. view file is set under /views directory
+    $app->get('/hello/{name}', function($name) use ($app) {
+        // Set a view file, should be located in the /views directory
         $app['phptal.view'] = "test.html";
+        
+        // Set a property on the Template directly 
         $app['phptal']->title = "PHPTAL in Silex";
-        $app['phptal']->name = $name;
+        // Alternatively, set a property on the Template using the set method
+        $app['phptal']->set('name', $name);
+        
         return $app['phptal']->execute();
     });
 
@@ -97,36 +76,39 @@ You have to set a template path first.
 
 ### test.html
 
-    <?xml version="1.0"?>
-    <html>
-      <head>
+    <!DOCTYPE html>
+    <html xmlns:tal="http://xml.zope.org/namespaces/tal">
+    <head>
         <title tal:content="title">
-          Place for the page title
+            Place for the page title
         </title>
-      </head>  <body>
+    </head>  
+    <body>
         <h1 tal:content="title">sample title</h1>
         <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-            </tr>
-          </thead>
-          <tbody>
-              <tr>
-                <td tal:content="name">person's name</td>
-              </tr>
-              <tr tal:replace="">
-                <td>sample name</td>
-              </tr>
-          </tbody>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td tal:content="name">person's name</td>
+                </tr>
+                <tr tal:replace="">
+                    <td>sample name</td>
+                </tr>
+            </tbody>
         </table>
-      </body>
+    </body>
     </html>
 
 ## License
 
-PHPTALExtension is licensed under the MIT license.
+PHPTALExtension is licensed under the [MIT license].
 
-[1]: http://phptal.org/manual/en/split/introduction.html
-[2]: http://silex.sensiolabs.org/
-[3]: http://symfony.com
+[PHPTAL]: http://phptal.org/manual/en/split/introduction.html
+[Silex]: http://silex.sensiolabs.org/
+[Symfony2]: http://symfony.com
+[using Composer]: https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies
+[MIT license]: LICENSE
