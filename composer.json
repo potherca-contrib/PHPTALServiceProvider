@@ -1,8 +1,14 @@
 {
     "name": "brtriver/PHPTALServiceProvider",
     "type": "library",
-    "description": "PHPTAL for Silex",
-    "keywords": ["silex","template"],
+    "description": "PHPTAL Service Provider for Silex",
+    "keywords": [
+        "silex",
+        "template", 
+        "phptal", 
+        "service provider", 
+        "service-provider"
+    ],
     "homepage": "http://github.com/brtriver/PHPTalServiceProvider",
     "license": "MIT",
     "authors": [
